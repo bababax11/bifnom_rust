@@ -1,10 +1,9 @@
 mod consts;
-mod structs;
+mod parse;
 mod projection;
 mod q_and_r;
-mod parse;
-
+mod structs;
 
 fn main() {
-  println!("Hello, world!");
+    println!("Hello, world!");
 }
