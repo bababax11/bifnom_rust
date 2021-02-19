@@ -4,32 +4,9 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::collections::HashMap;
 use regex::Regex;
-use ndarray::prelude::*;
 
-use crate::triangle::Triangle;
 
-// A simple implementation of `% cat path`
-// `% cat path`のシンプルな実装
-pub fn cat(path: &Path) -> io::Result<String> {
-    let mut f = File::open(path)?;
-    let mut s = String::new();
-    match f.read_to_string(&mut s) {
-        Ok(_) => Ok(s),
-        Err(e) => Err(e),
-    }
-}
-
-pub fn neighbor_parse(path: &Path) -> HashMap<(usize, usize), usize> {
-  let re_line = Regex::new(r"\d+").unwrap();
-  let mut results = HashMap::with_capacity(35000);
-
-  for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
-    let mut cs = re_line.captures_iter(&s).map(|w| w[0].parse::<usize>().unwrap());;
-    let (x, y, t) = (cs.next().unwrap(), cs.next().unwrap(), cs.next().unwrap());
-    results.insert((x, y), t);
-  }
-  results
-}
+use crate::structs::*;
 
 macro_rules! input {
   (source = $s:expr, $($r:tt)*) => {
@@ -85,8 +62,31 @@ macro_rules! read_value {
   };
 }
 
-pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
+
+// A simple implementation of `% cat path`
+// `% cat path`のシンプルな実装
+pub fn cat(path: &Path) -> io::Result<String> {
+    let mut f = File::open(path)?;
+    let mut s = String::new();
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
+}
+
+pub fn neighbor_parse(path: &Path) -> HashMap<(usize, usize), usize> {
   let re_line = Regex::new(r"\d+").unwrap();
+  let mut results = HashMap::with_capacity(35000);
+
+  for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
+    let mut cs = re_line.captures_iter(&s).map(|w| w[0].parse::<usize>().unwrap());;
+    let (x, y, t) = (cs.next().unwrap(), cs.next().unwrap(), cs.next().unwrap());
+    results.insert((x, y), t);
+  }
+  results
+}
+
+pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
   let mut results = Vec::with_capacity(23000);
 
   for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
@@ -107,13 +107,38 @@ pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
   results
 }
 
+pub fn parse_result(path: &Path) -> HashMap<usize, Vec<Feature>> {
+  let mut results = HashMap::<usize, Vec<Feature>>::with_capacity(10000);
+  for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
+    input!(source = s,
+      photo_no: usize,
+      _is_f: i8,
+      pos_a: [usize; 2],
+      pos_b: [usize; 2],
+      a_l: [f32; 3],
+      a_m: [f32; 3],
+      b_l: [f32; 3],
+      b_m: [f32; 3]
+    );
+    results.entry(photo_no).or_insert(vec![]).push(Feature{
+      pos_a: [pos_a[0], pos_a[1]],
+      pos_b: [pos_b[0], pos_b[1]],
+      a_l: [a_l[0], a_l[1], a_l[2]],
+      a_m: [a_m[0], a_m[1], a_m[2]],
+      b_l: [b_l[0], b_l[1], b_l[2]],
+      b_m: [b_m[0], b_m[1], b_m[2]],
+    });
+  }
+  results
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
   #[test]
   fn neighbor_parse_test() {
     let hm = neighbor_parse(&Path::new("Input_armadillo/nei/neighbor_points_00000.txt"));
-    dbg!(hm);
+    dbg!(hm.keys().collect::<std::collections::BTreeSet<_>>());
   }
 
   #[test]
@@ -122,3 +147,4 @@ mod tests {
     dbg!(tris);
   }
 }
+
