@@ -7,10 +7,10 @@ pub struct Triangle {
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct Feature {
-    pub pos_a: [usize; 2],
     /// 画像Aでの特徴点の位置
-    pub pos_b: [usize; 2],
+    pub pos_a: [usize; 2],
     /// 画像Bでの特徴点の位置
+    pub pos_b: [usize; 2],
     pub a_l: [f32; 3],
     pub a_m: [f32; 3],
     pub b_l: [f32; 3],

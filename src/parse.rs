@@ -72,7 +72,7 @@ pub fn cat(path: &Path) -> io::Result<String> {
     }
 }
 
-pub fn neighbor_parse(path: &Path) -> HashMap<(usize, usize), usize> {
+pub fn neighbor_parse(path: &Path) -> HashMap<[usize; 2], usize> {
     let re_line = Regex::new(r"\d+").unwrap();
     let mut results = HashMap::with_capacity(35000);
 
@@ -81,7 +81,7 @@ pub fn neighbor_parse(path: &Path) -> HashMap<(usize, usize), usize> {
             .captures_iter(&s)
             .map(|w| w[0].parse::<usize>().unwrap());
         let (x, y, t) = (cs.next().unwrap(), cs.next().unwrap(), cs.next().unwrap());
-        results.insert((x, y), t);
+        results.insert([x, y], t);
     }
     results
 }

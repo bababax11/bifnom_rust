@@ -14,8 +14,14 @@ pub fn prj2(xyz: [f32; 3]) -> [f32; 2] {
 }
 
 pub fn run(
-    results: &HashMap<usize, Vec<Feature>>,
-    neighbor: &HashMap<(usize, usize), usize>,
+    results: &Vec<Feature>,
+    neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
 ) {
+    for feat in results {
+        if let Some(&place) = neighbor.get(&feat.pos_a) {
+            let tri = &triangles[place];
+            
+        }
+    }
 }
