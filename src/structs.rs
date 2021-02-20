@@ -18,7 +18,7 @@ pub struct Feature {
 }
 
 impl Feature {
-    fn cross(l: &[f32], m: &[f32]) -> [f32; 3] {
+    fn cross(l: &[f32; 3], m: &[f32; 3]) -> [f32; 3] {
         [
             l[1] * m[2] - l[2] * m[1],
             l[2] * m[0] - l[0] * m[2],

@@ -3,8 +3,8 @@ use crate::structs::*;
 use ndarray::prelude::*;
 use std::collections::HashMap;
 
-pub fn prj2(xyz: [f32; 3]) -> [f32; 2] {
-    let [x, y, z] = xyz;
+pub fn prj2(xyz: &[f32; 3]) -> [f32; 2] {
+    let [x, y, z] = *xyz;
     let a = array![x, y, z, 1.0];
     let a = INV_V.dot(&a);
     [
