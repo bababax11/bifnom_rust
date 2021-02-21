@@ -9,7 +9,7 @@ fn main() {
         let neighbors = neighbor_parse(&Path::new(&format!("Input_armadillo/nei/neighbor_points_{:05}.txt", i)));
         let tris = triangles_parse(&Path::new(&format!("Input_armadillo/tri/triangles_{:05}.txt", i)));
         let tris_next = triangles_parse(&Path::new(&format!("Input_armadillo/tri/triangles_{:05}.txt", i + 1)));
-        let feats = result_parse(&Path::new(todo!()));
+        let feats = result_parse(&Path::new("RIFNOM_TAVE015_TVAR005_TANG025_TDIFF12_TTRACK6/result_RIFNOM_RAD2_ANG10_R5.txt"));
         let (prj, qs) = run(&feats[&i], &neighbors, &tris, &tris_next);
 
     }
