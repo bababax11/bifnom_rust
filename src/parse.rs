@@ -1,11 +1,11 @@
+use proconio::input;
+use proconio::source::auto::AutoSource;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
-use proconio::input;
-use proconio::source::auto::AutoSource;
 
 use crate::structs::*;
 
@@ -59,7 +59,7 @@ pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
     results
 }
 
-pub fn parse_result(path: &Path) -> HashMap<usize, Vec<Feature>> {
+pub fn result_parse(path: &Path) -> HashMap<usize, Vec<Feature>> {
     let mut results = HashMap::<usize, Vec<Feature>>::with_capacity(10000);
     for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
         input!(

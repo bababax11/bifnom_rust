@@ -1,7 +1,8 @@
 use ndarray::prelude::*;
+use crate::structs::Quaternion;
 
 /// http://marupeke296.sakura.ne.jp/DXG_No58_RotQuaternionTrans.html
-fn rot_mat_to_q(m: ArrayView2<f32>) -> [f32; 4] {
+pub fn rot_mat_to_q(m: ArrayView2<f32>) -> Quaternion {
     let elem = vec![
         m[[0, 0]] - m[[1, 1]] - m[[2, 2]] + 1.0,
         -m[[0, 0]] + m[[1, 1]] - m[[2, 2]] + 1.0,
@@ -48,5 +49,5 @@ fn rot_mat_to_q(m: ArrayView2<f32>) -> [f32; 4] {
         }
         _ => unreachable!(),
     }
-    ans
+    Quaternion{q: ans}
 }
