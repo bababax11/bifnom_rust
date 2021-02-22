@@ -2,6 +2,8 @@ use ndarray::prelude::*;
 use crate::structs::Quaternion;
 
 /// http://marupeke296.sakura.ne.jp/DXG_No58_RotQuaternionTrans.html
+/// https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+/// https://docs.rs/nalgebra/0.24.1/src/nalgebra/geometry/quaternion_construction.rs.html#284-342
 pub fn rot_mat_to_q(m: ArrayView2<f32>) -> Quaternion {
     let elem = vec![
         m[[0, 0]] - m[[1, 1]] - m[[2, 2]] + 1.0,
