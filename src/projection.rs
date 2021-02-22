@@ -1,7 +1,8 @@
 use crate::consts::*;
-use crate::q_and_r::rot_mat_to_q;
+// use crate::q_and_r::rot_mat_to_q;
 use crate::structs::*;
-use ndarray::prelude::*;
+use cgmath::prelude::*;
+use cgmath::{Matrix3, Quaternion};
 use std::collections::HashMap;
 
 fn triangle_coo(xy: &[f32; 2], xy1: &[f32; 2], xy2: &[f32; 2], xy3: &[f32; 2]) -> FeatCoo {
@@ -33,11 +34,10 @@ fn cal_px_from_st(f_coo: &FeatCoo, tri: &TriangleCoo) -> ProjectedPix {
     ProjectedPix { xy: [x, y] }
 }
 
-fn rotate_mat(before: &Triangle, after: &Triangle) -> Quaternion {
-    let bf_arr = array![before.a.clone(), before.b.clone(), before.c.clone()].t().to_owned();
-    let af_arr = array![after.a.clone(), after.b.clone(), after.c.clone()].t().to_owned();
-    use ndarray_linalg::solve::Inverse;
-    rot_mat_to_q((Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr).unwrap())).view())
+fn rotate_mat(before: &Triangle, after: &Triangle) -> Quaternion<f32> {
+    let bf_arr = Matrix3::from([before.a.clone(), before.b.clone(), before.c.clone()]).transpose();
+    let af_arr = Matrix3::from([after.a.clone(), after.b.clone(), after.c.clone()]).transpose();
+    (bf_arr * af_arr.invert().unwrap()).into()
 }
 
 pub fn run(
@@ -45,7 +45,7 @@ pub fn run(
     neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
     triangles_next: &Vec<Triangle>, // 1個未来の三角形
-) -> (Vec<ProjectedPix>, Vec<Quaternion>) {
+) -> (Vec<ProjectedPix>, Vec<Quaternion<f32>>) {
     let mut none_count = 0;
     let tri_coos: Vec<_> = triangles_next
         .iter()

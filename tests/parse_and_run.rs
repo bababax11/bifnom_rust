@@ -11,6 +11,6 @@ fn parse_and_run() {
     let tris_next = triangles_parse(&Path::new("Input_armadillo/tri/triangles_00001.txt"));
     let feats = result_parse(&Path::new("RIFNOM_TAVE015_TVAR005_TANG025_TDIFF12_TTRACK6/result_RIFNOM_RAD2_ANG10_R5.txt"));
     let (prj, qs) = run(&feats[&0], &neighbors, &tris, &tris_next);
-    println!("{}", Array::from(prj));
-    println!("{}",  Array::from(qs));
+    println!("{:?}", Array::from(prj));
+    println!("{:?}",  Array::from(qs));
 }

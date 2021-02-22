@@ -1,5 +1,7 @@
 use crate::consts::*;
-use ndarray::prelude::*;
+use cgmath::prelude::*;
+use cgmath::Vector4;
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Triangle {
@@ -31,8 +33,8 @@ impl fmt::Display for TriangleCoo {
 
 fn prj2(xyz: &[f32; 3]) -> [f32; 2] {
     let [x, y, z] = *xyz;
-    let a = array![x, y, z, 1.0];
-    let a = INV_V.dot(&a);
+    let a = Vector4::from([x, y, z, 1.0]);
+    let a = *INV_V * &a;
     [
         (a[0] / (-a[2] + EPS) * *PRJ00 + 1.) * WIDTH as f32,
         (a[1] / (a[2] + EPS) * *PRJ11 + 1.) * HEIGHT as f32,
@@ -96,10 +98,18 @@ pub struct ProjectedPix {
     pub xy: [f32; 2],
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Quaternion {
-    pub q: [f32; 4]
-}
+// #[derive(Clone, Debug, PartialEq)]
+// pub struct DisplayQuaternion {
+//     pub q: [f32; 4]
+// }
+
+// impl From<cgmath::Quaternion<f32>> for DisplayQuaternion {
+//     fn from(q: cgmath::Quaternion<f32>) -> DisplayQuaternion {
+//         DisplayQuaternion {
+//             q: q.v.
+//         }
+//     }
+// }
 
 impl fmt::Display for FeatCoo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -113,22 +123,21 @@ impl fmt::Display for ProjectedPix {
     }
 }
 
-use std::fmt;
-impl fmt::Display for Quaternion {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", &self.q)
-    }
-}
+// impl fmt::Display for cgmath::Quaternion<f32> {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{:?}", &self.v)
+//     }
+// }
 
-#[cfg(test)]
-mod test {
-    use super::*;
+// #[cfg(test)]
+// mod test {
+//     use super::*;
 
-    #[test]
-    fn quaternion_test() {
-        let q = Quaternion {
-            q: [0.; 4]
-        };
-        println!("{}", q);
-    }
-}
+//     #[test]
+//     fn displayquaternion_test() {
+//         let q = cgmath::Quaternion<f32> {
+//             q: [0.; 4]
+//         };
+//         println!("{}", q);
+//     }
+// }
