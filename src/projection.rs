@@ -49,7 +49,7 @@ pub fn run(
     neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
     triangles_next: &Vec<Triangle>, // 1個未来の三角形
-) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>) {
+) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>, usize) {
     let mut none_count = 0;
     let tri_coos: Vec<_> = triangles_next
         .iter()
@@ -77,6 +77,5 @@ pub fn run(
             None => none_count += 1,
         }
     }
-    dbg!(none_count);
-    (pxs, qs, b_qs)
+    (pxs, qs, b_qs, none_count)
 }
