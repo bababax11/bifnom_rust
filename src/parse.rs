@@ -61,7 +61,7 @@ pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
 
 pub fn result_parse(path: &Path) -> HashMap<usize, Vec<Feature>> {
     let mut results = HashMap::<usize, Vec<Feature>>::with_capacity(10000);
-    for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
+    for s in cat(&path).unwrap().split("\n").filter(|s| s.len() >= 3) {
         input!(
             from AutoSource::from(s),
             photo_no: usize,
