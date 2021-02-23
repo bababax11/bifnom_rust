@@ -33,7 +33,7 @@ fn cal_px_from_st(f_coo: &FeatCoo, tri: &TriangleCoo) -> ProjectedPix {
     ProjectedPix { xy: [x, y] }
 }
 
-fn rotate_mat(before: &Triangle, after: &Triangle) -> Quaternion {
+fn rotate_mat(before: &Triangle, after: &Triangle) -> ndarray_linalg::error::Result<Quaternion> {
     let bf_arr = array![before.a.clone(), before.b.clone(), before.c.clone()]
         .t()
         .to_owned();
@@ -41,7 +41,9 @@ fn rotate_mat(before: &Triangle, after: &Triangle) -> Quaternion {
         .t()
         .to_owned();
     use ndarray_linalg::solve::Inverse;
-    rot_mat_to_q((Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr).unwrap())).view())
+    Ok(rot_mat_to_q(
+        (Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr)?)).view(),
+    ))
 }
 
 pub fn run(
@@ -49,8 +51,7 @@ pub fn run(
     neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
     triangles_next: &Vec<Triangle>, // 1個未来の三角形
-) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>, usize) {
-    let mut none_count = 0;
+) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>) {
     let tri_coos: Vec<_> = triangles_next
         .iter()
         .map(|tri| TriangleCoo::from(tri))
@@ -59,11 +60,11 @@ pub fn run(
     let mut qs = vec![];
     let mut b_qs = vec![];
     for feat in feats {
-        match neighbor.get(&feat.pos_a) {
-            Some(&place) => {
-                let tri = &triangles[place];
-                let tri_next = &triangles_next[place];
-                let q = rotate_mat(tri, tri_next);
+        if let Some(&place) = neighbor.get(&feat.pos_a) {
+            let tri = &triangles[place];
+            let tri_next = &triangles_next[place];
+            let _q = rotate_mat(tri, tri_next);
+            if let Ok(q) = _q {
                 qs.push(q);
 
                 assert_eq!(tri_next.t, place);
@@ -74,8 +75,7 @@ pub fn run(
 
                 b_qs.push(feat.rotate_q());
             }
-            None => none_count += 1,
         }
     }
-    (pxs, qs, b_qs, none_count)
+    (pxs, qs, b_qs)
 }
