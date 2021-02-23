@@ -24,7 +24,7 @@ pub fn neighbor_parse(path: &Path) -> HashMap<[usize; 2], usize> {
     let re_line = Regex::new(r"\d+").unwrap();
     let mut results = HashMap::with_capacity(35000);
 
-    for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
+    for s in cat(&path).unwrap().split("\n").filter(|s| s.len() >= 3) {
         let mut cs = re_line
             .captures_iter(&s)
             .map(|w| w[0].parse::<usize>().unwrap());
