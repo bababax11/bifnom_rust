@@ -54,7 +54,7 @@ fn main() {
                 triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", i + 1).as_ref());
             let (prj, qs, b_qs, none_count) = run(&feats[&i], &neighbors, &tris, &tris_next);
 
-            let results_str = format_vec_strs(&prj, &qs, &b_qs, none_count, feat.len());
+            let results_str = format_vec_strs(&prj, &qs, &b_qs, none_count, feats.len());
             write!(file, "{}\n", results_str).unwrap();
 
             tris = tris_next;
