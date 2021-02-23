@@ -50,7 +50,7 @@ fn main() {
 
         use prgrs::Prgrs;
         for i in Prgrs::new(0..N, N) {
-            let result_path_str = format!("results/{}_{}", BASE_PATH, i);
+            let result_path_str = format!("results/{}_{}_{}", BASE_PATH, dir, i);
             let mut file = fs::File::create(result_path_str).unwrap();
 
             let neighbors = neighbor_parse(
