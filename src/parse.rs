@@ -37,7 +37,7 @@ pub fn neighbor_parse(path: &Path) -> HashMap<[usize; 2], usize> {
 pub fn triangles_parse(path: &Path) -> Vec<Triangle> {
     let mut results = Vec::with_capacity(23000);
 
-    for s in cat(&path).unwrap().split("\r\n").filter(|s| s.len() >= 3) {
+    for s in cat(&path).unwrap().split("\n").filter(|s| s.len() >= 3) {
         input!(
             from AutoSource::from(s),
             _t: String,
