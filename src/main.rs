@@ -37,6 +37,7 @@ fn main() {
     let mut tris = triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", 0).as_ref());
 
     for dir in dirs {
+        eprintln!("{}", &dir);
         let feats = result_parse(format!("{}/{}", BASE_PATH, dir).as_ref());
 
         use prgrs::Prgrs;
