@@ -23,7 +23,7 @@ fn format_vec_strs(prj: &[ProjectedPix], qs: &[Quaternion], b_qs: &[Quaternion])
     assert_eq!(prj.len(), qs.len());
     assert_eq!(qs.len(), b_qs.len());
     for (p, q, b) in izip!(prj, qs, b_qs) {
-        s += &format!("{}; {}; {}", &p, &q, &b);
+        s += &format!("{}; {}; {}\n", &p, &q, &b);
     }
     s
 }
@@ -49,11 +49,10 @@ fn main() {
             );
             let tris_next =
                 triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", i + 1).as_ref());
-            let (prj, qs) = run(&feats[&i], &neighbors, &tris, &tris_next);
-            let b_qs: Vec<_> = feats[&i].iter().map(|x| x.rotate_q()).collect();
+            let (prj, qs, b_qs) = run(&feats[&i], &neighbors, &tris, &tris_next);
 
             let results_str = format_vec_strs(&prj, &qs, &b_qs);
-            writeln!(file, "{}", results_str).unwrap();
+            write!(file, "{}\n", results_str).unwrap();
 
             tris = tris_next;
         }

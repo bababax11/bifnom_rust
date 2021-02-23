@@ -49,7 +49,7 @@ pub fn run(
     neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
     triangles_next: &Vec<Triangle>, // 1個未来の三角形
-) -> (Vec<ProjectedPix>, Vec<Quaternion>) {
+) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>) {
     let mut none_count = 0;
     let tri_coos: Vec<_> = triangles_next
         .iter()
@@ -57,6 +57,7 @@ pub fn run(
         .collect();
     let mut pxs = vec![];
     let mut qs = vec![];
+    let mut b_qs = vec![];
     for feat in feats {
         match neighbor.get(&feat.pos_a) {
             Some(&place) => {
@@ -70,10 +71,12 @@ pub fn run(
                 let f_coo = coo(feat, tri_coo);
                 let px = cal_px_from_st(&f_coo, tri_coo);
                 pxs.push(px);
+
+                b_qs.push(feat.rotate_q());
             }
             None => none_count += 1,
         }
     }
     dbg!(none_count);
-    (pxs, qs)
+    (pxs, qs, b_qs)
 }
