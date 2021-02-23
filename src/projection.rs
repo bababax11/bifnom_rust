@@ -34,8 +34,12 @@ fn cal_px_from_st(f_coo: &FeatCoo, tri: &TriangleCoo) -> ProjectedPix {
 }
 
 fn rotate_mat(before: &Triangle, after: &Triangle) -> Quaternion {
-    let bf_arr = array![before.a.clone(), before.b.clone(), before.c.clone()].t().to_owned();
-    let af_arr = array![after.a.clone(), after.b.clone(), after.c.clone()].t().to_owned();
+    let bf_arr = array![before.a.clone(), before.b.clone(), before.c.clone()]
+        .t()
+        .to_owned();
+    let af_arr = array![after.a.clone(), after.b.clone(), after.c.clone()]
+        .t()
+        .to_owned();
     use ndarray_linalg::solve::Inverse;
     rot_mat_to_q((Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr).unwrap())).view())
 }

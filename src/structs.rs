@@ -11,8 +11,12 @@ pub struct Triangle {
 
 impl fmt::Display for Triangle {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}, {:?}, {:?}
-        ", &self.a, &self.b, &self.c)
+        write!(
+            f,
+            "{:?}, {:?}, {:?}
+        ",
+            &self.a, &self.b, &self.c
+        )
     }
 }
 
@@ -24,8 +28,7 @@ pub struct TriangleCoo {
 
 impl fmt::Display for TriangleCoo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}, {:?}, {:?}",
-         &self.prj_a, &self.prj_b, &self.prj_c)
+        write!(f, "{:?}, {:?}, {:?}", &self.prj_a, &self.prj_b, &self.prj_c)
     }
 }
 
@@ -64,8 +67,18 @@ pub struct Feature {
 
 impl fmt::Display for Feature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?}", &self.pos_a, &self.pos_b, &self.a_l, &self.a_m, &self.a_n(),
-            &self.b_l, &self.b_m, &self.b_n())
+        write!(
+            f,
+            "{:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?}, {:?}",
+            &self.pos_a,
+            &self.pos_b,
+            &self.a_l,
+            &self.a_m,
+            &self.a_n(),
+            &self.b_l,
+            &self.b_m,
+            &self.b_n()
+        )
     }
 }
 
@@ -84,6 +97,17 @@ impl Feature {
     pub fn b_n(&self) -> [f32; 3] {
         Self::cross(&self.b_l, &self.b_m)
     }
+    pub fn rotate_q(&self) -> Quaternion {
+        let bf_arr = array![self.a_l.clone(), self.a_m.clone(), self.a_n()]
+            .t()
+            .to_owned();
+        let af_arr = array![self.b_l.clone(), self.b_m.clone(), self.b_n()]
+            .t()
+            .to_owned();
+        use crate::q_and_r::rot_mat_to_q;
+        use ndarray_linalg::solve::Inverse;
+        rot_mat_to_q((Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr).unwrap())).view())
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -98,7 +122,7 @@ pub struct ProjectedPix {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Quaternion {
-    pub q: [f32; 4]
+    pub q: [f32; 4],
 }
 
 impl fmt::Display for FeatCoo {
@@ -126,9 +150,7 @@ mod test {
 
     #[test]
     fn quaternion_test() {
-        let q = Quaternion {
-            q: [0.; 4]
-        };
+        let q = Quaternion { q: [0.; 4] };
         println!("{}", q);
     }
 }

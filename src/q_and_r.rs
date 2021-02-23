@@ -1,5 +1,5 @@
-use ndarray::prelude::*;
 use crate::structs::Quaternion;
+use ndarray::prelude::*;
 
 /// http://marupeke296.sakura.ne.jp/DXG_No58_RotQuaternionTrans.html
 /// https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
@@ -51,5 +51,5 @@ pub fn rot_mat_to_q(m: ArrayView2<f32>) -> Quaternion {
         }
         _ => unreachable!(),
     }
-    Quaternion{q: ans}
+    Quaternion { q: ans }
 }
