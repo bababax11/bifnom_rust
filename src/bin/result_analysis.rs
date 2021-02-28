@@ -38,7 +38,8 @@ fn main() {
             .collect();
         let qs: Vec<_> = parsed
             .iter()
-            .map(|(_, _, q, bq)| (q * bq.invert()).magnitude())
+            .map(|(_, _, q, bq)| (q.normalize() * &bq.invert().normalize()).s.acos() * 2f32)
+            .filter(|x| x.is_finite())
             .collect();
         let dist_sum = stat_summaries(&dists);
         let qs_sum = stat_summaries(&qs);
