@@ -1,3 +1,4 @@
+use cgmath::Quaternion;
 use once_cell::sync::Lazy;
 use proconio::input;
 use proconio::source::auto::AutoSource;
@@ -7,7 +8,6 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::{fs, io};
-use cgmath::Quaternion;
 
 use crate::structs::*;
 
@@ -98,7 +98,9 @@ pub fn result_parse(path: &Path) -> HashMap<usize, Vec<Feature>> {
     results
 }
 
-pub fn rust_result_parse(path: &Path) -> Vec<(Feature, ProjectedPix, Quaternion<f32>, Quaternion<f32>)> {
+pub fn rust_result_parse(
+    path: &Path,
+) -> Vec<(Feature, ProjectedPix, Quaternion<f32>, Quaternion<f32>)> {
     let mut results = Vec::with_capacity(8000);
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\[\],;]").unwrap());
     let file_str = cat(path).unwrap();
@@ -132,12 +134,8 @@ pub fn rust_result_parse(path: &Path) -> Vec<(Feature, ProjectedPix, Quaternion<
         let prj = ProjectedPix {
             xy: [prj[0], prj[1]],
         };
-        let q = Quaternion::from(
-            [q[0], q[1], q[2], q[3]]
-        );
-        let b = Quaternion::from(
-            [b[0], b[1], b[2], b[3]]
-        );
+        let q = Quaternion::from([q[0], q[1], q[2], q[3]]);
+        let b = Quaternion::from([b[0], b[1], b[2], b[3]]);
         results.push((feat, prj, q, b));
     }
     results

@@ -2,10 +2,10 @@ extern crate bifnom;
 use bifnom::parse::{neighbor_parse, read_dir, result_parse, triangles_parse};
 use bifnom::projection::run;
 use bifnom::structs::*;
+use cgmath::Quaternion;
 use itertools::izip;
 use std::fs;
 use std::io::prelude::*;
-use cgmath::Quaternion;
 
 fn format_vec_strs(
     fs: &[&Feature],
@@ -19,7 +19,13 @@ fn format_vec_strs(
     assert_eq!(prj.len(), qs.len());
     assert_eq!(qs.len(), b_qs.len());
     for (f, p, q, b) in izip!(fs, prj, qs, b_qs) {
-        s += &format!("{}; {}; {}; {}\n", &f, &p, DisplayQuaternion::from(q), DisplayQuaternion::from(b));
+        s += &format!(
+            "{}; {}; {}; {}\n",
+            &f,
+            &p,
+            DisplayQuaternion::from(q),
+            DisplayQuaternion::from(b)
+        );
     }
     s
 }
