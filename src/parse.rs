@@ -1,13 +1,25 @@
+use once_cell::sync::Lazy;
 use proconio::input;
 use proconio::source::auto::AutoSource;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io;
 use std::io::prelude::*;
 use std::path::Path;
+use std::{fs, io};
 
 use crate::structs::*;
+
+pub fn read_dir<P: AsRef<Path>>(path: P) -> io::Result<impl Iterator<Item = String>> {
+    Ok(fs::read_dir(path)?.filter_map(|entry| {
+        let entry = entry.ok()?;
+        if entry.file_type().ok()?.is_file() {
+            Some(entry.file_name().to_string_lossy().into_owned())
+        } else {
+            None
+        }
+    }))
+}
 
 // A simple implementation of `% cat path`
 // `% cat path`のシンプルな実装
@@ -21,11 +33,11 @@ pub fn cat(path: &Path) -> io::Result<String> {
 }
 
 pub fn neighbor_parse(path: &Path) -> HashMap<[usize; 2], usize> {
-    let re_line = Regex::new(r"\d+").unwrap();
+    static RE_LINE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\d+").unwrap());
     let mut results = HashMap::with_capacity(35000);
 
     for s in cat(&path).unwrap().split("\n").filter(|s| s.len() >= 3) {
-        let mut cs = re_line
+        let mut cs = RE_LINE
             .captures_iter(&s)
             .map(|w| w[0].parse::<usize>().unwrap());
         let (x, y, t) = (cs.next().unwrap(), cs.next().unwrap(), cs.next().unwrap());
@@ -85,6 +97,35 @@ pub fn result_parse(path: &Path) -> HashMap<usize, Vec<Feature>> {
     results
 }
 
+pub fn rust_result_parse(path: &Path) -> Vec<(ProjectedPix, Quaternion, Quaternion)> {
+    let mut results = Vec::with_capacity(8000);
+    static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\[\],;]").unwrap());
+    for s in cat(path)
+        .unwrap()
+        .split("\n")
+        .filter(|s| s.len() >= 3 && !s.starts_with("none_count"))
+    {
+        let removed = RE.replace_all(s, "");
+        input! (
+            from AutoSource::from(&*removed),
+            prj: [f32; 2],
+            q: [f32; 4],
+            b: [f32; 4],
+        );
+        let prj = ProjectedPix {
+            xy: [prj[0], prj[1]],
+        };
+        let q = Quaternion {
+            q: [q[0], q[1], q[2], q[3]],
+        };
+        let b = Quaternion {
+            q: [b[0], b[1], b[2], b[3]],
+        };
+        results.push((prj, q, b));
+    }
+    results
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,5 +139,11 @@ mod tests {
     fn triangles_parse_test() {
         let tris = triangles_parse(&Path::new("Input_armadillo/tri/triangles_00000.txt"));
         dbg!(tris);
+    }
+
+    #[test]
+    fn rust_result_parse_test() {
+        let pqbs = rust_result_parse(&Path::new("results/RIFNOM_TAVE015_TVAR005_TANG025_TDIFF12_TTRACK6_result_RIFNOM_RAD5_ANG30_R20.txt_230"));
+        dbg!(pqbs);
     }
 }

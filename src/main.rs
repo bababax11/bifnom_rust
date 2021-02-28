@@ -1,22 +1,10 @@
 extern crate bifnom;
-use bifnom::parse::{neighbor_parse, result_parse, triangles_parse};
+use bifnom::parse::{neighbor_parse, read_dir, result_parse, triangles_parse};
 use bifnom::projection::run;
 use bifnom::structs::*;
 use itertools::izip;
+use std::fs;
 use std::io::prelude::*;
-use std::path::Path;
-use std::{fs, io};
-
-fn read_dir<P: AsRef<Path>>(path: P) -> io::Result<impl Iterator<Item = String>> {
-    Ok(fs::read_dir(path)?.filter_map(|entry| {
-        let entry = entry.ok()?;
-        if entry.file_type().ok()?.is_file() {
-            Some(entry.file_name().to_string_lossy().into_owned())
-        } else {
-            None
-        }
-    }))
-}
 
 fn format_vec_strs(
     prj: &[ProjectedPix],
@@ -50,7 +38,7 @@ fn main() {
 
         use prgrs::Prgrs;
         for i in Prgrs::new(0..N, N) {
-            let result_path_str = format!("results/{}_{}_{}", BASE_PATH, dir, i);
+            let result_path_str = format!("results/{}_{}_{:03}", BASE_PATH, dir, i);
             let mut file = fs::File::create(result_path_str).unwrap();
 
             let neighbors = neighbor_parse(
