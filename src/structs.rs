@@ -1,5 +1,6 @@
 use crate::consts::*;
-use ndarray::prelude::*;
+use cgmath::{prelude::*, Vector4, Matrix3, Quaternion};
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Triangle {
@@ -29,8 +30,8 @@ impl fmt::Display for TriangleCoo {
 
 fn prj2(xyz: &[f32; 3]) -> [f32; 2] {
     let [x, y, z] = *xyz;
-    let a = array![x, y, z, 1.0];
-    let a = INV_V.dot(&a);
+    let a = Vector4::from([x, y, z, 1.0]);
+    let a = &*INV_V * a;
     [
         (a[0] / (-a[2] + EPS) * *PRJ00 + 1.) * WIDTH as f32,
         (a[1] / (a[2] + EPS) * *PRJ11 + 1.) * HEIGHT as f32,
@@ -92,16 +93,12 @@ impl Feature {
     pub fn b_n(&self) -> [f32; 3] {
         Self::cross(&self.b_l, &self.b_m)
     }
-    pub fn rotate_q(&self) -> Quaternion {
-        let bf_arr = array![self.a_l.clone(), self.a_m.clone(), self.a_n()]
-            .t()
-            .to_owned();
-        let af_arr = array![self.b_l.clone(), self.b_m.clone(), self.b_n()]
-            .t()
-            .to_owned();
-        use crate::q_and_r::rot_mat_to_q;
-        use ndarray_linalg::solve::Inverse;
-        rot_mat_to_q((Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr).unwrap())).view())
+    pub fn rotate_q(&self) -> Option<Quaternion<f32>> {
+        let bf_arr = Matrix3::from([self.a_l.clone(), self.a_m.clone(), self.a_n()])
+            .transpose();
+        let af_arr = Matrix3::from([self.b_l.clone(), self.b_m.clone(), self.b_n()])
+            .transpose();
+        Some((&bf_arr * af_arr.invert()?).into())
     }
 }
 
@@ -116,8 +113,16 @@ pub struct ProjectedPix {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Quaternion {
-    pub q: [f32; 4],
+pub struct DisplayQuaternion {
+    pub q: [f32; 4]
+}
+
+impl From<&cgmath::Quaternion<f32>> for DisplayQuaternion {
+    fn from(q: &cgmath::Quaternion<f32>) -> DisplayQuaternion {
+        DisplayQuaternion {
+            q: [q.s, q.v[0], q.v[1], q.v[2]]
+        }
+    }
 }
 
 impl fmt::Display for FeatCoo {
@@ -132,8 +137,7 @@ impl fmt::Display for ProjectedPix {
     }
 }
 
-use std::fmt;
-impl fmt::Display for Quaternion {
+impl fmt::Display for DisplayQuaternion {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", &self.q)
     }
@@ -145,7 +149,7 @@ mod test {
 
     #[test]
     fn quaternion_test() {
-        let q = Quaternion { q: [0.; 4] };
+        let q = DisplayQuaternion { q: [0.; 4] };
         println!("{}", q);
     }
 }

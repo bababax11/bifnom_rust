@@ -1,7 +1,6 @@
 use crate::consts::*;
-use crate::q_and_r::rot_mat_to_q;
 use crate::structs::*;
-use ndarray::prelude::*;
+use cgmath::{prelude::*, Matrix3, Quaternion};
 use std::collections::HashMap;
 
 fn triangle_coo(xy: &[f32; 2], xy1: &[f32; 2], xy2: &[f32; 2], xy3: &[f32; 2]) -> FeatCoo {
@@ -33,17 +32,10 @@ fn cal_px_from_st(f_coo: &FeatCoo, tri: &TriangleCoo) -> ProjectedPix {
     ProjectedPix { xy: [x, y] }
 }
 
-fn rotate_mat(before: &Triangle, after: &Triangle) -> ndarray_linalg::error::Result<Quaternion> {
-    let bf_arr = array![before.a.clone(), before.b.clone(), before.c.clone()]
-        .t()
-        .to_owned();
-    let af_arr = array![after.a.clone(), after.b.clone(), after.c.clone()]
-        .t()
-        .to_owned();
-    use ndarray_linalg::solve::Inverse;
-    Ok(rot_mat_to_q(
-        (Array2::<f32>::dot(&bf_arr, &Inverse::inv(&af_arr)?)).view(),
-    ))
+fn rotate_mat(before: &Triangle, after: &Triangle) -> Option<Quaternion<f32>> {
+    let bf_arr = Matrix3::from([before.a.clone(), before.b.clone(), before.c.clone()]).transpose();
+    let af_arr = Matrix3::from([after.a.clone(), after.b.clone(), after.c.clone()]).transpose();
+    Some((bf_arr * af_arr.invert()?).into())
 }
 
 pub fn run<'a>(
@@ -54,8 +46,8 @@ pub fn run<'a>(
 ) -> (
     Vec<&'a Feature>,
     Vec<ProjectedPix>,
-    Vec<Quaternion>,
-    Vec<Quaternion>,
+    Vec<Quaternion<f32>>,
+    Vec<Quaternion<f32>>,
 ) {
     let tri_coos: Vec<_> = triangles_next
         .iter()
@@ -70,7 +62,7 @@ pub fn run<'a>(
             let tri = &triangles[place];
             let tri_next = &triangles_next[place];
             let _q = rotate_mat(tri, tri_next);
-            if let Ok(q) = _q {
+            if let Some(q) = _q {
                 fs.push(feat);
                 qs.push(q);
 
@@ -80,7 +72,7 @@ pub fn run<'a>(
                 let px = cal_px_from_st(&f_coo, tri_coo);
                 pxs.push(px);
 
-                b_qs.push(feat.rotate_q());
+                b_qs.push(feat.rotate_q().unwrap());
             }
         }
     }

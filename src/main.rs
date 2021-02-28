@@ -5,12 +5,13 @@ use bifnom::structs::*;
 use itertools::izip;
 use std::fs;
 use std::io::prelude::*;
+use cgmath::Quaternion;
 
 fn format_vec_strs(
     fs: &[&Feature],
     prj: &[ProjectedPix],
-    qs: &[Quaternion],
-    b_qs: &[Quaternion],
+    qs: &[Quaternion<f32>],
+    b_qs: &[Quaternion<f32>],
     all_count: usize,
 ) -> String {
     let none_count = all_count - prj.len();
@@ -18,7 +19,7 @@ fn format_vec_strs(
     assert_eq!(prj.len(), qs.len());
     assert_eq!(qs.len(), b_qs.len());
     for (f, p, q, b) in izip!(fs, prj, qs, b_qs) {
-        s += &format!("{}; {}; {}; {}\n", &f, &p, &q, &b);
+        s += &format!("{}; {}; {}; {}\n", &f, &p, DisplayQuaternion::from(q), DisplayQuaternion::from(b));
     }
     s
 }
