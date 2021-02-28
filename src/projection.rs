@@ -46,16 +46,22 @@ fn rotate_mat(before: &Triangle, after: &Triangle) -> ndarray_linalg::error::Res
     ))
 }
 
-pub fn run(
-    feats: &Vec<Feature>,
+pub fn run<'a>(
+    feats: &'a Vec<Feature>,
     neighbor: &HashMap<[usize; 2], usize>,
     triangles: &Vec<Triangle>,
     triangles_next: &Vec<Triangle>, // 1個未来の三角形
-) -> (Vec<ProjectedPix>, Vec<Quaternion>, Vec<Quaternion>) {
+) -> (
+    Vec<&'a Feature>,
+    Vec<ProjectedPix>,
+    Vec<Quaternion>,
+    Vec<Quaternion>,
+) {
     let tri_coos: Vec<_> = triangles_next
         .iter()
         .map(|tri| TriangleCoo::from(tri))
         .collect();
+    let mut fs = vec![];
     let mut pxs = vec![];
     let mut qs = vec![];
     let mut b_qs = vec![];
@@ -65,6 +71,7 @@ pub fn run(
             let tri_next = &triangles_next[place];
             let _q = rotate_mat(tri, tri_next);
             if let Ok(q) = _q {
+                fs.push(feat);
                 qs.push(q);
 
                 assert_eq!(tri_next.t, place);
@@ -77,5 +84,5 @@ pub fn run(
             }
         }
     }
-    (pxs, qs, b_qs)
+    (fs, pxs, qs, b_qs)
 }

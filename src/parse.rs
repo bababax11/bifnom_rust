@@ -97,21 +97,37 @@ pub fn result_parse(path: &Path) -> HashMap<usize, Vec<Feature>> {
     results
 }
 
-pub fn rust_result_parse(path: &Path) -> Vec<(ProjectedPix, Quaternion, Quaternion)> {
+pub fn rust_result_parse(path: &Path) -> Vec<(Feature, ProjectedPix, Quaternion, Quaternion)> {
     let mut results = Vec::with_capacity(8000);
     static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"[\[\],;]").unwrap());
-    for s in cat(path)
-        .unwrap()
+    let file_str = cat(path).unwrap();
+    let removed = RE.replace_all(&file_str, "");
+    for s in removed
         .split("\n")
         .filter(|s| s.len() >= 3 && !s.starts_with("none_count"))
     {
-        let removed = RE.replace_all(s, "");
         input! (
-            from AutoSource::from(&*removed),
+            from AutoSource::from(s),
+            pos_a: [usize; 2],
+            pos_b: [usize; 2],
+            a_l: [f32; 3],
+            a_m: [f32; 3],
+            _a_n: [f32; 3],
+            b_l: [f32; 3],
+            b_m: [f32; 3],
+            _b_n: [f32; 3],
             prj: [f32; 2],
             q: [f32; 4],
             b: [f32; 4],
         );
+        let feat = Feature {
+            pos_a: [pos_a[0], pos_a[1]],
+            pos_b: [pos_b[0], pos_b[1]],
+            a_l: [a_l[0], a_l[1], a_l[2]],
+            a_m: [a_m[0], a_m[1], a_m[2]],
+            b_l: [b_l[0], b_l[1], b_l[2]],
+            b_m: [b_m[0], b_m[1], b_m[2]],
+        };
         let prj = ProjectedPix {
             xy: [prj[0], prj[1]],
         };
@@ -121,7 +137,7 @@ pub fn rust_result_parse(path: &Path) -> Vec<(ProjectedPix, Quaternion, Quaterni
         let b = Quaternion {
             q: [b[0], b[1], b[2], b[3]],
         };
-        results.push((prj, q, b));
+        results.push((feat, prj, q, b));
     }
     results
 }
