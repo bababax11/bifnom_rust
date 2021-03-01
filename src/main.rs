@@ -44,8 +44,12 @@ fn main() {
         let mut tris_v = Vec::with_capacity(N);
         let mut nei_v = Vec::with_capacity(N);
         for i in 0..N {
-           tris_v.push(triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", i).as_ref()));
-           nei_v.push(neighbor_parse(format!("Input_armadillo/nei/neighbor_points_{:05}.txt", i).as_ref()));
+            tris_v.push(triangles_parse(
+                format!("Input_armadillo/tri/triangles_{:05}.txt", i).as_ref(),
+            ));
+            nei_v.push(neighbor_parse(
+                format!("Input_armadillo/nei/neighbor_points_{:05}.txt", i).as_ref(),
+            ));
         }
         (tris_v, nei_v)
     };
