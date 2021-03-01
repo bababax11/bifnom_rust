@@ -32,32 +32,41 @@ fn format_vec_strs(
 }
 
 fn main() {
-    const N: usize = 249 - 1;
+    const N: usize = 249;
     const BASE_PATH: &str = "RIFNOM_TAVE015_TVAR005_TANG025_TDIFF12_TTRACK6";
-    let files: BTreeSet<_> = read_dir(BASE_PATH)
+    let mut files: Vec<_> = read_dir(BASE_PATH)
         .unwrap()
         .filter(|x| x.starts_with("result"))
         .collect();
-    let mut tris = triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", 0).as_ref());
+    files.sort();
 
-    for file in files {
-        eprintln!("{}", &file);
-        let feats = result_parse(format!("{}/{}", BASE_PATH, file).as_ref());
+    let (tris_v, nei_v) = {
+        let mut tris_v = Vec::with_capacity(N);
+        let mut nei_v = Vec::with_capacity(N);
+        for i in 0..N {
+           tris_v.push(triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", i).as_ref()));
+           nei_v.push(neighbor_parse(format!("Input_armadillo/nei/neighbor_points_{:05}.txt", i).as_ref()));
+        }
+        (tris_v, nei_v)
+    };
+
+    for feat_path in files {
+        eprintln!("{}", &feat_path);
+        let feats = result_parse(format!("{}/{}", BASE_PATH, feat_path).as_ref());
+
+        let mut tris = &tris_v[0];
 
         use prgrs::Prgrs;
-        for i in Prgrs::new(0..N, N) {
-            let result_path_str = format!("results/{}_{}_{:03}", BASE_PATH, file, i);
-            let mut file = fs::File::create(result_path_str).unwrap();
+        for i in Prgrs::new(0..N - 1, N - 1) {
+            let result_path_str = format!("results/{}_{}_{:03}", BASE_PATH, feat_path, i);
+            let mut out_file = fs::File::create(result_path_str).unwrap();
 
-            let neighbors = neighbor_parse(
-                format!("Input_armadillo/nei/neighbor_points_{:05}.txt", i).as_ref(),
-            );
-            let tris_next =
-                triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", i + 1).as_ref());
+            let neighbors = &nei_v[i];
+            let tris_next = &tris_v[i + 1];
             let (fs, prj, qs, b_qs) = run(&feats[&i], &neighbors, &tris, &tris_next);
 
             let results_str = format_vec_strs(&fs, &prj, &qs, &b_qs, feats[&i].len());
-            write!(file, "{}\n", results_str).unwrap();
+            write!(out_file, "{}\n", results_str).unwrap();
 
             tris = tris_next;
         }
