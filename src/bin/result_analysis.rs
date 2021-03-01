@@ -32,13 +32,20 @@ fn main() {
     for src_path in files {
         eprintln!("{}", &src_path);
         let parsed = rust_result_parse(format!("{}/{}", BASE_PATH, src_path).as_ref());
-        let dists: Vec<_> = parsed
+        let dists_and_qs: Vec<_> = parsed
             .iter()
-            .map(|(feat, prj, _, _)| sub_distance(feat, prj))
+            .map(|(feat, prj, q, bq)| {
+                (
+                    sub_distance(feat, prj),
+                    (q.normalize() * &bq.invert().normalize()).s.acos() * 2f32,
+                )
+            })
+            .filter(|(d, _)| *d < 5.)
             .collect();
-        let qs: Vec<_> = parsed
+        let dists: Vec<_> = dists_and_qs.iter().map(|(d, _)| *d).collect();
+        let qs: Vec<_> = dists_and_qs
             .iter()
-            .map(|(_, _, q, bq)| (q.normalize() * &bq.invert().normalize()).s.acos() * 2f32)
+            .map(|(_, angle)| *angle)
             .filter(|x| x.is_finite())
             .collect();
         let dist_sum = stat_summaries(&dists);
