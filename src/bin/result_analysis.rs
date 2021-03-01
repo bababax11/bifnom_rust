@@ -28,6 +28,7 @@ fn main() {
     const BASE_PATH: &str = "results";
     let mut files: Vec<_> = read_dir(BASE_PATH).unwrap().collect();
     files.sort();
+    println!("path dist_mean dist_std dist_median angle_mean angle_std angle_median");
 
     for src_path in files {
         eprintln!("{}", &src_path);
