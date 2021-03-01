@@ -4,7 +4,6 @@ use bifnom::structs::*;
 use cgmath::prelude::*;
 use proconio::fastout;
 use statistical as st;
-use std::collections::BTreeSet;
 
 #[inline]
 fn euclid_dist(a: &[f32; 2], b: &[f32; 2]) -> f32 {
@@ -27,11 +26,12 @@ fn stat_summaries<T: num_traits::Float>(v: &[T]) -> (T, T, T) {
 #[fastout]
 fn main() {
     const BASE_PATH: &str = "results";
-    let files: BTreeSet<_> = read_dir(BASE_PATH).unwrap().collect();
+    let mut files: Vec<_> = read_dir(BASE_PATH).unwrap().collect();
+    files.sort();
 
-    for file in files {
-        eprintln!("{}", &file);
-        let parsed = rust_result_parse(format!("{}/{}", BASE_PATH, file).as_ref());
+    for src_path in files {
+        eprintln!("{}", &src_path);
+        let parsed = rust_result_parse(format!("{}/{}", BASE_PATH, src_path).as_ref());
         let dists: Vec<_> = parsed
             .iter()
             .map(|(feat, prj, _, _)| sub_distance(feat, prj))
@@ -43,6 +43,6 @@ fn main() {
             .collect();
         let dist_sum = stat_summaries(&dists);
         let qs_sum = stat_summaries(&qs);
-        println!("{} {:?} {:?}", &file, dist_sum, qs_sum);
+        println!("{} {:?} {:?}", &src_path, dist_sum, qs_sum);
     }
 }
