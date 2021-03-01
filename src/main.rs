@@ -4,6 +4,7 @@ use bifnom::projection::run;
 use bifnom::structs::*;
 use cgmath::Quaternion;
 use itertools::izip;
+use std::collections::BTreeSet;
 use std::fs;
 use std::io::prelude::*;
 
@@ -33,11 +34,10 @@ fn format_vec_strs(
 fn main() {
     const N: usize = 249 - 1;
     const BASE_PATH: &str = "RIFNOM_TAVE015_TVAR005_TANG025_TDIFF12_TTRACK6";
-    let mut files: Vec<_> = read_dir(BASE_PATH)
+    let files: BTreeSet<_> = read_dir(BASE_PATH)
         .unwrap()
         .filter(|x| x.starts_with("result"))
         .collect();
-    files.sort();
     let mut tris = triangles_parse(format!("Input_armadillo/tri/triangles_{:05}.txt", 0).as_ref());
 
     for file in files {

@@ -2,8 +2,9 @@ extern crate bifnom;
 use bifnom::parse::{read_dir, rust_result_parse};
 use bifnom::structs::*;
 use cgmath::prelude::*;
-use statistical as st;
 use proconio::fastout;
+use statistical as st;
+use std::collections::BTreeSet;
 
 #[inline]
 fn euclid_dist(a: &[f32; 2], b: &[f32; 2]) -> f32 {
@@ -26,8 +27,7 @@ fn stat_summaries<T: num_traits::Float>(v: &[T]) -> (T, T, T) {
 #[fastout]
 fn main() {
     const BASE_PATH: &str = "results";
-    let mut files: Vec<_> = read_dir(BASE_PATH).unwrap().collect();
-    files.sort();
+    let files: BTreeSet<_> = read_dir(BASE_PATH).unwrap().collect();
 
     for file in files {
         eprintln!("{}", &file);
