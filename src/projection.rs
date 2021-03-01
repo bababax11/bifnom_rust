@@ -3,14 +3,23 @@ use crate::structs::*;
 use cgmath::{prelude::*, Matrix3, Quaternion};
 use std::collections::HashMap;
 
-fn triangle_coo(xy: &[f32; 2], xy1: &[f32; 2], xy2: &[f32; 2], xy3: &[f32; 2]) -> FeatCoo {
+/// P(x, y), A(x0, y0), B(x1, y1), C(x2, y2) として
+/// AP = sAB + tACとなるような(s, t)を返す 
+fn triangle_coo(xy: &[f32; 2], xy0: &[f32; 2], xy1: &[f32; 2], xy2: &[f32; 2]) -> FeatCoo {
     let [x, y] = *xy;
+    let [x0, y0] = *xy0;
     let [x1, y1] = *xy1;
     let [x2, y2] = *xy2;
-    let [x3, y3] = *xy3;
-    let area2_inv = 1. / ((-y2 * x3 + y1 * (-x2 + x3) + x1 * (y2 - y3) + x2 * y3) + EPS);
-    let s = area2_inv * (y1 * x3 - x1 * y3 + (y3 - y1) * x + (x1 - x3) * y);
-    let t = area2_inv * (x1 * y2 - y1 * x2 + (y1 - y2) * x + (x2 - x1) * y);
+    let x = x - x0;
+    let y = y - y0;
+    let x1 = x1 - x0;
+    let y1 = y1 - y0;
+    let x2 = x2 - x0;
+    let y2 = y2 - y0;
+
+    let area2_inv = 1. / (x1 * y2 - y1 * x2 + EPS);
+    let s = area2_inv * (y2 * x - x2 * y);
+    let t = area2_inv * (-y1 * x + x1 * y);
     FeatCoo { st: [s, t] }
 }
 
