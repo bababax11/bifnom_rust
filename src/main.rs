@@ -4,7 +4,6 @@ use bifnom::projection::run;
 use bifnom::structs::*;
 use cgmath::Quaternion;
 use itertools::izip;
-use std::collections::BTreeSet;
 use std::fs;
 use std::io::prelude::*;
 
